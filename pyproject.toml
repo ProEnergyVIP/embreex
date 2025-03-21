@@ -10,14 +10,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "embreex"
-<<<<<<< HEAD
-version = "2.17.7.post6"
 requires-python = ">=3.8"
-
-=======
-requires-python = ">=3.7"
 version = "4.3.1rc0"
->>>>>>> feat/e4
 dependencies = ["numpy"]
 description = "Python binding for Intel's Embree ray engine"
 readme = {file = "README.md", content-type = "text/markdown"}
