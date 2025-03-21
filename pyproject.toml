@@ -1,12 +1,21 @@
 [build-system]
-requires = [
-    "setuptools>=59.0",
-    "tomli>=0.10; python_version<'3.7'",
-    "numpy",
-    "cython>=3.0"
-]
+requires = ["poetry-core>=1.0.0", "numpy", "cython>=3.0"]
+build-backend = "poetry.core.masonry.api"
 
-build-backend = "setuptools.build_meta"
+[tool.poetry]
+name = "embreex"
+version = "4.3.1rc0"
+description = "Python binding for Intel's Embree ray engine"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+license = "LICENSE"
+packages = [{include = "embreex"}]
+include = ["embreex/*.pxd", "embreex/*.pyx", "embreex/*.cpp", "embreex/*.h"]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+numpy = "*"
+cython = ">=3.0"
 
 [project]
 name = "embreex"
@@ -23,12 +32,10 @@ Source = "https://github.com/trimesh/embreex"
 [tool.setuptools]
 zip-safe = false
 include-package-data = false
+package-data = {embreex = ["*.pxd", "*.pyx", "*.cpp"]}
 
 [tool.setuptools.packages]
 find = {namespaces = false}
-
-[tool.setuptools.package-data]
-embreex = ["*.pxd"]
 
 [tool.cibuildwheel]
 skip =  "pp* *i686 *-win32 *musllinux*"
