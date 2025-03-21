@@ -12,11 +12,7 @@ cimport rtcore_geometry as rtcg
 
 log = logging.getLogger('embreex')
 
-<<<<<<< HEAD
-cdef void error_printer(const rtc.RTCError code, const char *_str) noexcept:
-=======
 cdef void error_printer(void* userPtr, rtc.RTCError code, const char *_str) noexcept:
->>>>>>> feat/e4
     """
     error_printer function for Embree4
     """
@@ -48,11 +44,6 @@ cdef class EmbreeScene:
         rtc.rtcSetDeviceErrorFunction(device.device_i, error_printer, NULL)
         
         self.is_committed = 0
-
-    @property
-    def scene(self):
-        """Get the scene_i attribute."""
-        return self.scene_i
 
     def run(self, np.ndarray[np.float32_t, ndim=2] vec_origins,
                   np.ndarray[np.float32_t, ndim=2] vec_directions,
