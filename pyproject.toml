@@ -1,10 +1,10 @@
 [build-system]
-requires = ["poetry-core>=1.0.0", "numpy", "cython>=3.0"]
+requires = ["poetry-core>=1.0.0", "numpy>=2.2.0", "cython>=3.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "embreex"
-version = "4.3.1rc0"
+version = "0.2.0"
 description = "Python binding for Intel's Embree ray engine"
 authors = ["Your Name <your.email@example.com>"]
 readme = "README.md"
@@ -13,14 +13,14 @@ packages = [{include = "embreex"}]
 include = ["embreex/*.pxd", "embreex/*.pyx", "embreex/*.cpp", "embreex/*.h"]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-numpy = "*"
+python = ">=3.10"
+numpy = ">=2.2.0"
 cython = ">=3.0"
 
 [project]
 name = "embreex"
-requires-python = ">=3.8"
-version = "4.3.1rc0"
+requires-python = ">=3.10"
+version = "0.2.0"
 dependencies = ["numpy"]
 description = "Python binding for Intel's Embree ray engine"
 readme = {file = "README.md", content-type = "text/markdown"}
