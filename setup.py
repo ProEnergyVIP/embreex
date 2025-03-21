@@ -39,7 +39,8 @@ def ext_modules():
     for ext in ext_modules:
         ext.include_dirs = includes
         ext.library_dirs = libraries
-        ext.libraries = ["embree"]
+        # For Embree4, the library name is "embree4"
+        ext.libraries = ["embree4"]
 
     return ext_modules
 
