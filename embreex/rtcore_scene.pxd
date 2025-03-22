@@ -2,8 +2,8 @@
 
 cimport cython
 cimport numpy as np
-cimport rtcore as rtc
-cimport rtcore_ray as rtcr
+from embreex cimport rtcore as rtc
+from embreex cimport rtcore_ray as rtcr
 
 cdef extern from "embree4/rtcore_scene.h":
 

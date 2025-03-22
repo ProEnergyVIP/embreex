@@ -2,8 +2,8 @@
 
 cimport cython
 cimport numpy as np
-cimport rtcore as rtc
-cimport rtcore_scene as rtcs
+from embreex cimport rtcore as rtc
+from embreex cimport rtcore_scene as rtcs
 
 cdef extern from "embree4/rtcore_geometry.h":
     # Define invalid geometry ID

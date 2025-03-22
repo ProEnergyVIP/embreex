@@ -5,9 +5,9 @@ cimport numpy as np
 import numpy as np
 import logging
 import numbers
-cimport rtcore as rtc
-cimport rtcore_ray as rtcr
-cimport rtcore_geometry as rtcg
+from embreex cimport rtcore as rtc
+from embreex cimport rtcore_ray as rtcr
+from embreex cimport rtcore_geometry as rtcg
 
 
 log = logging.getLogger('embreex')
@@ -84,7 +84,7 @@ cdef class EmbreeScene:
             v = np.empty(nv, dtype="float32")
             Ng = np.empty((nv, 3), dtype="float32")
             primID = np.empty(nv, dtype="int32")
-            geomID = np.empty(nv, dtype="int32")
+            geomID = np.empty(nv, dtype="uint32")
         else:
             intersect_ids = np.empty(nv, dtype="int32")
 

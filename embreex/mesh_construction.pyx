@@ -2,11 +2,11 @@
 # distutils: language=c++
 
 cimport numpy as np
-cimport rtcore as rtc
-cimport rtcore_ray as rtcr
-cimport rtcore_scene as rtcs
-cimport rtcore_geometry as rtcg
-from rtcore cimport Vertex, Triangle
+from embreex cimport rtcore as rtc
+from embreex cimport rtcore_ray as rtcr
+from embreex cimport rtcore_scene as rtcs
+from embreex cimport rtcore_geometry as rtcg
+from embreex.rtcore cimport Vertex, Triangle
 
 
 cdef extern from "mesh_construction.h":

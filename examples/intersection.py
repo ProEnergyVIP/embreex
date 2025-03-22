@@ -40,7 +40,8 @@ print(
 )
 print(res)
 
-ray_inter = res["geomID"] >= 0
+# Check for valid intersections (geomID != RTC_INVALID_GEOMETRY_ID)
+ray_inter = res["geomID"] != 4294967295  # RTC_INVALID_GEOMETRY_ID
 print("{0} rays intersect geometry (over {1})".format(sum(ray_inter), N))
 print("Intersection coordinates")
 primID = res["primID"][ray_inter]
