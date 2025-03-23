@@ -23,13 +23,6 @@ cdef void error_printer(void* userPtr, rtc.RTCError code, const char *_str) noex
 
 cdef class EmbreeScene:
     def __init__(self, rtc.EmbreeDevice device=None, robust=False):
-        # Store robust setting for reset method first
-        self._robust = robust
-        
-        # Add call counter to track number of run calls
-        self._call_counter = 0
-        self._reset_threshold = 200
-        
         if device is None:
             # We store the embree device inside EmbreeScene to avoid premature deletion
             self.device = rtc.EmbreeDevice()
@@ -52,34 +45,9 @@ cdef class EmbreeScene:
         
         self.is_committed = 0
 
-    def reset(self):
-        """
-        Reset the scene by releasing the current scene and creating a new one.
-        This helps prevent thread resource exhaustion when calling run repeatedly.
-        """
-        # Release the current scene
-        rtcReleaseScene(self.scene_i)
-        
-        # Create a new scene
-        self.scene_i = rtcNewScene(self.device.device_i)
-        
-        # Restore scene flags and build quality
-        if self._robust:
-            rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_ROBUST)
-        else:
-            rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_NONE)
-        
-        rtcSetSceneBuildQuality(self.scene_i, RTC_BUILD_QUALITY_HIGH)
-        
-        # Reset the committed flag
-        self.is_committed = 0
-        
-        # Reset the call counter
-        self._call_counter = 0
-
     def run(self, np.ndarray[np.float32_t, ndim=2] vec_origins,
                   np.ndarray[np.float32_t, ndim=2] vec_directions,
-                  dists=None, query='INTERSECT', output=None, reset_after=False):
+                  dists=None, query='INTERSECT', output=None):
         """
         Run ray tracing on the scene.
         
@@ -95,21 +63,12 @@ cdef class EmbreeScene:
             Type of query: 'INTERSECT', 'OCCLUDED', or 'DISTANCE'
         output : bool, optional
             Whether to return detailed hit information
-        reset_after : bool, optional
-            Whether to reset the scene after running to prevent thread resource exhaustion
-            Set this to True when calling run in a loop many times
             
         Returns:
         --------
         dict or numpy.ndarray
             Results of the ray tracing operation
         """
-        # Increment call counter
-        self._call_counter += 1
-        
-        # Check if we need to reset based on call counter
-        if self._call_counter >= self._reset_threshold:
-            self.reset()
 
         if self.is_committed == 0:
             rtcCommitScene(self.scene_i)
@@ -213,17 +172,12 @@ cdef class EmbreeScene:
                 intersect_ids[i] = 0 if ray.tfar < 0 else 1
 
         if output:
-            result = {'u':u, 'v':v, 'Ng': Ng, 'tfar': tfars, 'primID': primID, 'geomID': geomID}
+            return {'u':u, 'v':v, 'Ng': Ng, 'tfar': tfars, 'primID': primID, 'geomID': geomID}
         else:
             if query_type == distance:
-                result = tfars
+                return tfars
             else:
-                result = intersect_ids
-
-        if reset_after:
-            self.reset()
-
-        return result
+                return intersect_ids
 
     def __dealloc__(self):
         rtcReleaseScene(self.scene_i)
