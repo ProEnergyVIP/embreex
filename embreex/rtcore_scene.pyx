@@ -31,6 +31,13 @@ cdef class EmbreeScene:
         # Create a new scene
         self.scene_i = rtcNewScene(device.device_i)
         
+        # Store robust setting for reset method
+        self._robust = robust
+        
+        # Add call counter to track number of run calls
+        self._call_counter = 0
+        self._reset_threshold = 200
+        
         # Set scene flags
         if robust:
             rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_ROBUST)
@@ -45,9 +52,64 @@ cdef class EmbreeScene:
         
         self.is_committed = 0
 
+    def reset(self):
+        """
+        Reset the scene by releasing the current scene and creating a new one.
+        This helps prevent thread resource exhaustion when calling run repeatedly.
+        """
+        # Release the current scene
+        rtcReleaseScene(self.scene_i)
+        
+        # Create a new scene
+        self.scene_i = rtcNewScene(self.device.device_i)
+        
+        # Restore scene flags and build quality
+        if hasattr(self, '_robust') and self._robust:
+            rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_ROBUST)
+        else:
+            rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_NONE)
+        
+        rtcSetSceneBuildQuality(self.scene_i, RTC_BUILD_QUALITY_HIGH)
+        
+        # Reset the committed flag
+        self.is_committed = 0
+        
+        # Reset the call counter
+        self._call_counter = 0
+
     def run(self, np.ndarray[np.float32_t, ndim=2] vec_origins,
                   np.ndarray[np.float32_t, ndim=2] vec_directions,
-                  dists=None,query='INTERSECT',output=None):
+                  dists=None, query='INTERSECT', output=None, reset_after=False):
+        """
+        Run ray tracing on the scene.
+        
+        Parameters:
+        -----------
+        vec_origins : numpy.ndarray
+            Origins of the rays
+        vec_directions : numpy.ndarray
+            Directions of the rays
+        dists : float or numpy.ndarray, optional
+            Maximum distances for the rays
+        query : str, optional
+            Type of query: 'INTERSECT', 'OCCLUDED', or 'DISTANCE'
+        output : bool, optional
+            Whether to return detailed hit information
+        reset_after : bool, optional
+            Whether to reset the scene after running to prevent thread resource exhaustion
+            Set this to True when calling run in a loop many times
+            
+        Returns:
+        --------
+        dict or numpy.ndarray
+            Results of the ray tracing operation
+        """
+        # Increment call counter
+        self._call_counter += 1
+        
+        # Check if we need to reset based on call counter
+        if self._call_counter >= self._reset_threshold:
+            self.reset()
 
         if self.is_committed == 0:
             rtcCommitScene(self.scene_i)
@@ -151,12 +213,17 @@ cdef class EmbreeScene:
                 intersect_ids[i] = 0 if ray.tfar < 0 else 1
 
         if output:
-            return {'u':u, 'v':v, 'Ng': Ng, 'tfar': tfars, 'primID': primID, 'geomID': geomID}
+            result = {'u':u, 'v':v, 'Ng': Ng, 'tfar': tfars, 'primID': primID, 'geomID': geomID}
         else:
             if query_type == distance:
-                return tfars
+                result = tfars
             else:
-                return intersect_ids
+                result = intersect_ids
+
+        if reset_after:
+            self.reset()
+
+        return result
 
     def __dealloc__(self):
         rtcReleaseScene(self.scene_i)
