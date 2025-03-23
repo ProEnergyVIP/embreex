@@ -23,6 +23,13 @@ cdef void error_printer(void* userPtr, rtc.RTCError code, const char *_str) noex
 
 cdef class EmbreeScene:
     def __init__(self, rtc.EmbreeDevice device=None, robust=False):
+        # Store robust setting for reset method first
+        self._robust = robust
+        
+        # Add call counter to track number of run calls
+        self._call_counter = 0
+        self._reset_threshold = 200
+        
         if device is None:
             # We store the embree device inside EmbreeScene to avoid premature deletion
             self.device = rtc.EmbreeDevice()
@@ -30,13 +37,6 @@ cdef class EmbreeScene:
         
         # Create a new scene
         self.scene_i = rtcNewScene(device.device_i)
-        
-        # Store robust setting for reset method
-        self._robust = robust
-        
-        # Add call counter to track number of run calls
-        self._call_counter = 0
-        self._reset_threshold = 200
         
         # Set scene flags
         if robust:
