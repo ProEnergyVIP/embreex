@@ -71,6 +71,9 @@ cdef class EmbreeScene:
     # Optional device used if not given, it should be as input of EmbreeScene
     cdef public int is_committed
     cdef rtc.EmbreeDevice device
+    cdef public bint _robust
+    cdef public int _call_counter
+    cdef public int _reset_threshold
 
 cdef enum rayQueryType:
     intersect,
