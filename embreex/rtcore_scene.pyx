@@ -64,7 +64,9 @@ cdef class EmbreeScene:
         self.scene_i = rtcNewScene(self.device.device_i)
         
         # Restore scene flags and build quality
-        if hasattr(self, '_robust') and self._robust:
+        # Use getattr with a default value to handle cases where _robust doesn't exist
+        robust = getattr(self, '_robust', False)
+        if robust:
             rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_ROBUST)
         else:
             rtcSetSceneFlags(self.scene_i, RTC_SCENE_FLAG_NONE)
